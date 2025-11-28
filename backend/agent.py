@@ -7,7 +7,7 @@ import hashlib
 import google.generativeai as genai
 from typing import List, Dict, Optional, Any
 
-API_KEY = "AIzaSyBVsE5mdfjAOJLl4jgVzGqulXo4HBpvNdM"
+API_KEY = "API_KEY"
 
 generation_config = {
   "temperature": 0.7,
