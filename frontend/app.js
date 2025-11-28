@@ -1,3 +1,4 @@
+// app.js
 const API_URL = 'http://localhost:8000/api';
 
 const chatInput = document.getElementById('chat-input-field');

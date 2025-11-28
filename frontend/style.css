@@ -1,4 +1,18 @@
-/* Layout */
+/* style.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
 .app-container {
     display: flex;
     height: 100vh;
@@ -43,7 +57,7 @@
 }
 
 .new-chat-btn:hover {
-    background-color: #22f946;
+    background-color: #22f995;
 }
 
 .chat-list {
@@ -124,7 +138,7 @@
 
 .message.user {
     align-self: flex-end;
-    background-color: #0ea5e9;
+    background-color: #1be390;
     color: white;
     border-bottom-right-radius: 4px;
 }
@@ -175,7 +189,7 @@
 }
 
 #chat-input-field:focus {
-    border-color: #38bdf8;
+    border-color: #00ff88;
 }
 
 #chat-send-btn {
@@ -192,7 +206,7 @@
 }
 
 #chat-send-btn:hover {
-    background-color: #0ea5e9;
+    background-color: #0ee986;
 }
 
 @keyframes fadeIn {

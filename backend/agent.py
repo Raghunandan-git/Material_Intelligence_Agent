@@ -1,3 +1,4 @@
+# agent.py
 import os
 import json
 import time
@@ -6,7 +7,7 @@ import hashlib
 import google.generativeai as genai
 from typing import List, Dict, Optional, Any
 
-API_KEY = "API_KEY"
+API_KEY = "aPI_key"
 
 generation_config = {
   "temperature": 0.7,
@@ -52,6 +53,9 @@ SYSTEM_INSTRUCTION = """
     - Do not hallucinate properties. Use standard engineering values.
     - ALWAYS reference applicable standards (ASTM, DIN, EN, ISO) when providing material properties.
     - When recommending a material, cite the specific standard designation (e.g., "AISI 304" or "DIN 1.4301").
+
+    
+
 """
 
 class GeminiClient:
