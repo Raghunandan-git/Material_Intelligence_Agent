@@ -7,7 +7,7 @@ import hashlib
 import google.generativeai as genai
 from typing import List, Dict, Optional, Any
 
-API_KEY = "aPI_key"
+API_KEY = "api_key"
 
 generation_config = {
   "temperature": 0.7,
@@ -186,3 +186,42 @@ client = GeminiClient(api_key=API_KEY)
 
 async def process_chat(message: str, history: List[Dict[str, str]]) -> str:
     return client.chat_with_retry(message, history)
+
+async def generate_report_data(history: List[Dict[str, str]]) -> Dict[str, Any]:
+    """
+    Analyzes the chat history to extract structured data for the engineering report.
+    """
+    prompt = """
+    Analyze the following conversation history between a user and a Material Intelligence Agent.
+    Extract the following information and return it as a JSON object:
+    
+    1. "constraints": A list of specific constraints mentioned by the user (e.g., "Temp > 500C", "Cost < $10/kg").
+    2. "matches": A list of materials that were discussed or considered. For each, include "name" and a dictionary of "properties" (key-value pairs of properties mentioned).
+    3. "explanation": A brief summary (max 100 words) of the AI's reasoning for the final recommendation.
+    4. "recommendation": The name of the final recommended material.
+    
+    If any information is missing or not reached yet, leave it empty or null.
+    
+    Conversation History:
+    """
+    
+    for msg in history:
+        role = "User" if msg["role"] == "user" else "AI"
+        prompt += f"\n{role}: {msg['content']}"
+        
+    prompt += "\n\nReturn ONLY raw JSON."
+    
+    try:
+        response_text = client.chat_with_retry(prompt, [])
+        # Clean up potential markdown code blocks
+        response_text = response_text.replace("```json", "").replace("```", "").strip()
+        data = json.loads(response_text)
+        return data
+    except Exception as e:
+        print(f"Error generating report data: {e}")
+        return {
+            "constraints": [],
+            "matches": [],
+            "explanation": "Could not generate explanation due to an error.",
+            "recommendation": "Unknown"
+        }

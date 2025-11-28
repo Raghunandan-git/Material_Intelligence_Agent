@@ -56,7 +56,7 @@ async function createNewChat() {
         const response = await fetch(`${API_URL}/sessions`, { method: 'POST' });
         if (response.ok) {
             const session = await response.json();
-            await loadSessions(); 
+            await loadSessions();
             loadSession(session._id);
         }
     } catch (error) {
@@ -115,7 +115,7 @@ async function sendMessage() {
         const response = await fetch(`${API_URL}/chat/${currentSessionId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text }) 
+            body: JSON.stringify({ message: text })
         });
 
         removeMessage(loadingId);
@@ -170,8 +170,91 @@ function scrollToBottom() {
     chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
+const downloadBtn = document.getElementById('download-report-btn');
+const visualizeBtn = document.getElementById('visualize-btn');
+const modal = document.getElementById('visualization-modal');
+const closeModal = document.querySelector('.close-modal');
+const chartsContainer = document.getElementById('charts-container');
+
 sendBtn.addEventListener('click', sendMessage);
 newChatBtn.addEventListener('click', createNewChat);
+downloadBtn.addEventListener('click', downloadReport);
+visualizeBtn.addEventListener('click', showVisualizations);
+closeModal.addEventListener('click', () => modal.style.display = "none");
+window.addEventListener('click', (e) => {
+    if (e.target == modal) modal.style.display = "none";
+});
+
+async function showVisualizations() {
+    if (!currentSessionId) {
+        alert("Please start a chat session first.");
+        return;
+    }
+
+    modal.style.display = "block";
+    chartsContainer.innerHTML = '<p>Loading charts...</p>';
+
+    const chartTypes = ['tensile', 'density', 'radar'];
+    chartsContainer.innerHTML = '';
+
+    for (const type of chartTypes) {
+        try {
+            const response = await fetch(`${API_URL}/charts/${type}/${currentSessionId}`);
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                const div = document.createElement('div');
+                div.className = 'chart-item';
+                const img = document.createElement('img');
+                img.src = url;
+                div.appendChild(img);
+                chartsContainer.appendChild(div);
+            }
+        } catch (e) {
+            console.error(`Failed to load ${type} chart`, e);
+        }
+    }
+
+    if (chartsContainer.children.length === 0) {
+        chartsContainer.innerHTML = '<p>No charts available. Try discussing specific materials first.</p>';
+    }
+}
+
+async function downloadReport() {
+    if (!currentSessionId) {
+        alert("Please start a chat session first.");
+        return;
+    }
+
+    const originalText = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = 'Generating...';
+    downloadBtn.disabled = true;
+
+    try {
+        const response = await fetch(`${API_URL}/generate-report/${currentSessionId}`);
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Material_Report_${currentSessionId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        } else {
+            alert("Failed to generate report. Please try again.");
+        }
+    } catch (error) {
+        console.error("Error downloading report:", error);
+        alert("Error downloading report.");
+    } finally {
+        downloadBtn.innerHTML = originalText;
+        downloadBtn.disabled = false;
+    }
+}
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage();
 });
